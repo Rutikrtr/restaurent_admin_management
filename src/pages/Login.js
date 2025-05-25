@@ -24,24 +24,44 @@ const Login = () => {
 
 
     const handleLogin = async (e) => {
-        setloading(true);
-        e.preventDefault();
-        try {
+    setloading(true);
+    e.preventDefault();
+    try {
+        const data = await loginRestaurant(email, password);
+        dispatch(loginSuccess(data));
+        toast.success("Login successful");
+        
+        // Determine redirect path based on account type
+        const redirectPath = data.user.accountType === 'superadmin' 
+            ? "/dashboard" 
+            : "/management";
+            
+        navigate(redirectPath, { replace: true });
+    } catch (error) {
+        toast.error(error.response?.data?.message || "Login failed");
+        console.error('Login failed', error);
+    } finally {
+        setloading(false);
+    }
+};
+    // const handleLogin = async (e) => {
+    //     setloading(true);
+    //     e.preventDefault();
+    //     try {
 
-            const data = await loginRestaurant(email, password);
-            dispatch(loginSuccess(data));
-            toast.success("Login successful");
-            navigate("/management", { replace: true });
-        } catch (error) {
-            toast.error(error.response?.data?.message || "Login failed");
-            console.error('Login failed', error);
-        } finally {
-            setloading(false);
-        }
-    };
+    //         const data = await loginRestaurant(email, password);
+    //         dispatch(loginSuccess(data));
+    //         toast.success("Login successful");
+    //         navigate("/management", { replace: true });
+    //     } catch (error) {
+    //         toast.error(error.response?.data?.message || "Login failed");
+    //         console.error('Login failed', error);
+    //     } finally {
+    //         setloading(false);
+    //     }
+    // };
     return (
         <div className="bg-white">
-
             <div className="flex h-screen flex-col items-center justify-center font-mono">
                 <div><Toaster /></div>
                 <div className="max-h-auto mx-auto max-w-xl">

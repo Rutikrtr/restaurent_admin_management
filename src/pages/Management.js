@@ -37,7 +37,7 @@ const Management = () => {
                     {user && (
                         <div className="mb-4 p-4 bg-gray-100 rounded">
                             <p>Welcome, {user.email || user.name || 'User'}!</p>
-                            {restaurant && <p>Restaurant: {restaurant.name}</p>}
+                            {restaurant && <p>Restaurant: {restaurant.name}  .</p>}
                         </div>
                     )}
 

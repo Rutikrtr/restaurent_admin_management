@@ -3,7 +3,7 @@ import axios from 'axios';
 import Cookies from 'js-cookie';
 export const loginRestaurant = async (email, password) => {
   const res = await axios.post(
-    'http://localhost:8000/api/v1/user/login/restaurant',
+    'http://localhost:8000/api/v1/user/login/bothsuperadmin&restaurent',
     { email, password },
     {
       withCredentials: true
