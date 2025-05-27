@@ -3,14 +3,13 @@ import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import './App.css';
 import Login from './pages/Login';
 import Management from './pages/Management';
-import Superlogin from './pages/SuperLogin';
 import { Provider } from 'react-redux';
 import { store, persistor } from './app/store';
 import ProtectedRoute from './components/ProtectedRoute';
 import { Navigate } from 'react-router-dom';
 import { PersistGate } from 'redux-persist/integration/react';
 import Dashboard from './superadmin/Dashboard';
-
+// import RestaurantDashboard from './pages/RestaurantDashboard';
 function App() {
   return (
     <Provider store={store}>
@@ -26,7 +25,7 @@ function App() {
               path="/management"
               element={
                 <ProtectedRoute allowedRoles={['restaurant']}>
-                  <Management />
+                  <Management/>
                 </ProtectedRoute>
               }
             />
@@ -41,7 +40,7 @@ function App() {
               }
             />
 
-            <Route path='/superlogin' element={<Superlogin />} />
+           
           </Routes>
         </BrowserRouter>
       </PersistGate>

@@ -1,23 +1,26 @@
 // src/app/store.js
 import { configureStore } from '@reduxjs/toolkit';
 import { persistStore, persistReducer } from 'redux-persist';
-import storage from 'redux-persist/lib/storage'; // defaults to localStorage
+import storage from 'redux-persist/lib/storage';
 import authReducer from '../features/auth/authSlice';
+import restaurantReducer from '../features/restaurant/restaurantSlice'; // Add this import
 
-const persistConfig = {
+// Auth persist config
+const authPersistConfig = {
   key: 'auth',
   storage,
 };
 
-const persistedReducer = persistReducer(persistConfig, authReducer);
+const persistedAuthReducer = persistReducer(authPersistConfig, authReducer);
 
 export const store = configureStore({
   reducer: {
-    auth: persistedReducer,
+    auth: persistedAuthReducer,
+   restaurant: restaurantReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
-      serializableCheck: false, // because redux-persist stores non-serializable data
+      serializableCheck: false,
     }),
 });
 
