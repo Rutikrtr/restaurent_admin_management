@@ -19,7 +19,9 @@ export const getRestaurantByManager = async () => {
         `${API_BASE_URL}/manager`,
         getAuthConfig()
     );
+    console.log(res.data.data)
     return res.data.data;
+    
 };
 
 // Add menu item with category
