@@ -3,7 +3,7 @@ import { useSelector } from 'react-redux';
 import toast from 'react-hot-toast';
 import axios from 'axios';
 import Cookies from 'js-cookie';
-
+import DailyIncomeReport from './report/DailyIncomeReport';
 const API_BASE_URL = 'http://localhost:8000/api/v1/user';
 
 // Get axios config with auth headers
@@ -38,16 +38,19 @@ const Order = () => {
     const [filteredOrders, setFilteredOrders] = useState([]);
     const [loading, setLoading] = useState(true);
     const [updatingOrder, setUpdatingOrder] = useState(null);
-    
+    const [showDailyIncomeModal, setShowDailyIncomeModal] = useState(false);
+    {/* Daily Income Modal */ }
+
+
     // Filter states
     const [statusFilter, setStatusFilter] = useState('all');
     const [orderTypeFilter, setOrderTypeFilter] = useState('all');
-    
+
     const { restaurant } = useSelector((state) => state.restaurant);
 
     const validStatuses = ["pending", "approved", "preparing", "ready", "completed", "rejected", "cancelled"];
     const orderTypes = ["dine-in", "takeaway", "delivery"];
-    
+
     // Status colors for UI
     const getStatusColor = (status) => {
         const colors = {
@@ -128,14 +131,14 @@ const Order = () => {
         try {
             setUpdatingOrder(orderId);
             const updatedOrder = await updateOrderStatus(orderId, newStatus);
-            
+
             // Update the order in the local state
-            setOrders(prevOrders => 
-                prevOrders.map(order => 
+            setOrders(prevOrders =>
+                prevOrders.map(order =>
                     order._id === orderId ? updatedOrder : order
                 )
             );
-            
+
             toast.success('Order status updated successfully');
         } catch (error) {
             console.error('Error updating order status:', error);
@@ -156,8 +159,8 @@ const Order = () => {
     };
 
     const calculateTotal = (order) => {
-        return order.total ? order.total.toFixed(2) : 
-               order.items.reduce((total, item) => total + (item.price * item.quantity), 0).toFixed(2);
+        return order.total ? order.total.toFixed(2) :
+            order.items.reduce((total, item) => total + (item.price * item.quantity), 0).toFixed(2);
     };
 
     // Get counts for filter badges
@@ -167,11 +170,11 @@ const Order = () => {
             pending: orders.filter(o => o.status === 'pending').length,
             completed: orders.filter(o => o.status === 'completed').length,
         };
-        
+
         orderTypes.forEach(type => {
             counts[type] = orders.filter(o => o.orderType === type).length;
         });
-        
+
         return counts;
     };
 
@@ -189,13 +192,24 @@ const Order = () => {
         <div className="space-y-6">
             <div className="flex justify-between items-center">
                 <h2 className="text-2xl font-bold text-gray-800">Restaurant Orders</h2>
-                <button
-                    onClick={fetchOrders}
-                    className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors"
-                >
-                    Refresh Orders
-                </button>
+                <div className="flex gap-3">
+                    <button
+                        onClick={() => setShowDailyIncomeModal(true)}
+                        className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium transition-colors"
+                    >
+                        Daily Income
+                    </button>
+                    <button
+                        onClick={fetchOrders}
+                        className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors"
+                    >
+                        Refresh Orders
+                    </button>
+                </div>
             </div>
+
+
+
 
             {/* Filter Section */}
             <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-200">
@@ -206,31 +220,28 @@ const Order = () => {
                         <div className="flex flex-wrap gap-2">
                             <button
                                 onClick={() => setStatusFilter('all')}
-                                className={`px-3 py-1 rounded-full text-sm font-medium transition-colors ${
-                                    statusFilter === 'all' 
-                                        ? 'bg-gray-800 text-white' 
-                                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                                }`}
+                                className={`px-3 py-1 rounded-full text-sm font-medium transition-colors ${statusFilter === 'all'
+                                    ? 'bg-gray-800 text-white'
+                                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                                    }`}
                             >
                                 All ({filterCounts.all})
                             </button>
                             <button
                                 onClick={() => setStatusFilter('pending')}
-                                className={`px-3 py-1 rounded-full text-sm font-medium transition-colors ${
-                                    statusFilter === 'pending' 
-                                        ? 'bg-yellow-600 text-white' 
-                                        : 'bg-yellow-100 text-yellow-700 hover:bg-yellow-200'
-                                }`}
+                                className={`px-3 py-1 rounded-full text-sm font-medium transition-colors ${statusFilter === 'pending'
+                                    ? 'bg-yellow-600 text-white'
+                                    : 'bg-yellow-100 text-yellow-700 hover:bg-yellow-200'
+                                    }`}
                             >
                                 Pending ({filterCounts.pending})
                             </button>
                             <button
                                 onClick={() => setStatusFilter('completed')}
-                                className={`px-3 py-1 rounded-full text-sm font-medium transition-colors ${
-                                    statusFilter === 'completed' 
-                                        ? 'bg-gray-600 text-white' 
-                                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                                }`}
+                                className={`px-3 py-1 rounded-full text-sm font-medium transition-colors ${statusFilter === 'completed'
+                                    ? 'bg-gray-600 text-white'
+                                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                                    }`}
                             >
                                 Completed ({filterCounts.completed})
                             </button>
@@ -238,13 +249,12 @@ const Order = () => {
                                 <button
                                     key={status}
                                     onClick={() => setStatusFilter(status)}
-                                    className={`px-3 py-1 rounded-full text-sm font-medium transition-colors ${
-                                        statusFilter === status 
-                                            ? 'bg-blue-600 text-white' 
-                                            : 'bg-blue-100 text-blue-700 hover:bg-blue-200'
-                                    }`}
+                                    className={`px-3 py-1 rounded-full text-sm font-medium transition-colors ${statusFilter === status
+                                        ? 'bg-blue-600 text-white'
+                                        : 'bg-blue-100 text-blue-700 hover:bg-blue-200'
+                                        }`}
                                 >
-                                    {status.charAt(0).toUpperCase() + status.slice(1)} 
+                                    {status.charAt(0).toUpperCase() + status.slice(1)}
                                     ({orders.filter(o => o.status === status).length})
                                 </button>
                             ))}
@@ -257,11 +267,10 @@ const Order = () => {
                         <div className="flex flex-wrap gap-2">
                             <button
                                 onClick={() => setOrderTypeFilter('all')}
-                                className={`px-3 py-1 rounded-full text-sm font-medium transition-colors ${
-                                    orderTypeFilter === 'all' 
-                                        ? 'bg-gray-800 text-white' 
-                                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                                }`}
+                                className={`px-3 py-1 rounded-full text-sm font-medium transition-colors ${orderTypeFilter === 'all'
+                                    ? 'bg-gray-800 text-white'
+                                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                                    }`}
                             >
                                 All Types ({filterCounts.all})
                             </button>
@@ -269,11 +278,10 @@ const Order = () => {
                                 <button
                                     key={type}
                                     onClick={() => setOrderTypeFilter(type)}
-                                    className={`px-3 py-1 rounded-full text-sm font-medium transition-colors ${
-                                        orderTypeFilter === type 
-                                            ? 'bg-purple-600 text-white' 
-                                            : 'bg-purple-100 text-purple-700 hover:bg-purple-200'
-                                    }`}
+                                    className={`px-3 py-1 rounded-full text-sm font-medium transition-colors ${orderTypeFilter === type
+                                        ? 'bg-purple-600 text-white'
+                                        : 'bg-purple-100 text-purple-700 hover:bg-purple-200'
+                                        }`}
                                 >
                                     {type.charAt(0).toUpperCase() + type.slice(1)} ({filterCounts[type]})
                                 </button>
@@ -319,7 +327,7 @@ const Order = () => {
                         {orders.length === 0 ? 'No Orders Yet' : 'No Orders Match Your Filters'}
                     </h3>
                     <p className="text-sm text-gray-500">
-                        {orders.length === 0 
+                        {orders.length === 0
                             ? 'Orders will appear here when customers place them'
                             : 'Try adjusting your filters to see more orders'
                         }
@@ -365,8 +373,8 @@ const Order = () => {
                                         <div key={index} className="flex justify-between items-center py-1">
                                             <div className="flex items-center space-x-2 flex-1">
                                                 {item.image && (
-                                                    <img 
-                                                        src={item.image} 
+                                                    <img
+                                                        src={item.image}
                                                         alt={item.name}
                                                         className="w-8 h-8 rounded object-cover"
                                                     />
@@ -391,13 +399,13 @@ const Order = () => {
                                         📍 {order.deliveryAddress.length > 40 ? order.deliveryAddress.substring(0, 40) + '...' : order.deliveryAddress}
                                     </div>
                                 )}
-                                
+
                                 {order.specialInstructions && (
                                     <div className="text-xs text-amber-700 bg-amber-50 px-2 py-1 rounded">
                                         💬 {order.specialInstructions.length > 50 ? order.specialInstructions.substring(0, 50) + '...' : order.specialInstructions}
                                     </div>
                                 )}
-                                
+
                                 {order.paymentMethod && (
                                     <div className="text-xs text-green-700">
                                         💳 {order.paymentMethod.toUpperCase()}
@@ -412,28 +420,30 @@ const Order = () => {
                                         key={status}
                                         onClick={() => handleStatusUpdate(order._id, status)}
                                         disabled={updatingOrder === order._id}
-                                        className={`px-3 py-1 rounded text-xs font-medium transition-colors disabled:opacity-50 ${
-                                            status === 'approved' ? 'bg-blue-600 hover:bg-blue-700 text-white' :
+                                        className={`px-3 py-1 rounded text-xs font-medium transition-colors disabled:opacity-50 ${status === 'approved' ? 'bg-blue-600 hover:bg-blue-700 text-white' :
                                             status === 'preparing' ? 'bg-orange-600 hover:bg-orange-700 text-white' :
-                                            status === 'ready' ? 'bg-green-600 hover:bg-green-700 text-white' :
-                                            status === 'completed' ? 'bg-gray-600 hover:bg-gray-700 text-white' :
-                                            status === 'rejected' ? 'bg-red-600 hover:bg-red-700 text-white' :
-                                            status === 'cancelled' ? 'bg-red-600 hover:bg-red-700 text-white' :
-                                            'bg-gray-600 hover:bg-gray-700 text-white'
-                                        }`}
+                                                status === 'ready' ? 'bg-green-600 hover:bg-green-700 text-white' :
+                                                    status === 'completed' ? 'bg-gray-600 hover:bg-gray-700 text-white' :
+                                                        status === 'rejected' ? 'bg-red-600 hover:bg-red-700 text-white' :
+                                                            status === 'cancelled' ? 'bg-red-600 hover:bg-red-700 text-white' :
+                                                                'bg-gray-600 hover:bg-gray-700 text-white'
+                                            }`}
                                     >
-                                        {updatingOrder === order._id ? '...' : 
-                                         status === 'approved' ? 'APPROVE' :
-                                         status === 'preparing' ? 'PREPARE' :
-                                         status === 'ready' ? 'READY' :
-                                         status === 'completed' ? 'COMPLETE' :
-                                         status === 'rejected' ? 'REJECT' :
-                                         status === 'cancelled' ? 'CANCEL' :
-                                         status.toUpperCase()
+                                        {updatingOrder === order._id ? '...' :
+                                            status === 'approved' ? 'APPROVE' :
+                                                status === 'preparing' ? 'PREPARE' :
+                                                    status === 'ready' ? 'READY' :
+                                                        status === 'completed' ? 'COMPLETE' :
+                                                            status === 'rejected' ? 'REJECT' :
+                                                                status === 'cancelled' ? 'CANCEL' :
+                                                                    status.toUpperCase()
                                         }
                                     </button>
                                 ))}
                             </div>
+
+
+
 
                             {/* Collapsible Status History */}
                             {order.statusHistory && order.statusHistory.length > 0 && (
@@ -454,6 +464,14 @@ const Order = () => {
                         </div>
                     ))}
                 </div>
+            )}
+
+            {showDailyIncomeModal && (
+                <DailyIncomeReport
+                    isOpen={showDailyIncomeModal}
+                    onClose={() => setShowDailyIncomeModal(false)}
+                    orders={orders}
+                />
             )}
         </div>
     );

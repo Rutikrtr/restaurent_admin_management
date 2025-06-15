@@ -11,6 +11,8 @@
     "ajv": "^8.17.1",
     "axios": "^1.9.0",
     "js-cookie": "^3.0.5",
+    "jspdf": "^2.5.1",
+    "jspdf-autotable": "^3.5.31",
     "lucide-react": "^0.511.0",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
@@ -23,6 +25,9 @@
     "web-vitals": "^2.1.4"
   },
   "scripts": {
+    "start:frontend": "echo \"\u001b[32m✅ Starting Frontend...\u001b[0m\" && npm start",
+    "start:backend": "cd restaurant_backend && npm start",
+    "dev": "concurrently \"npm run start:frontend\" \"npm run start:backend\"",
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
@@ -48,6 +53,7 @@
   },
   "devDependencies": {
     "autoprefixer": "^10.4.21",
+    "concurrently": "^9.1.2",
     "daisyui": "^5.0.37",
     "postcss": "^8.5.3",
     "source-map-loader": "^5.0.0",
